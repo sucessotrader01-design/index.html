@@ -8,23 +8,21 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: linear-gradient(135deg, #25d366 0%, #128C7E 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        
+        /* CONTAINER PRINCIPAL */
         .container { background: white; border-radius: 20px; box-shadow: 0 25px 80px rgba(0,0,0,0.3); max-width: 450px; width: 100%; overflow: hidden; }
         .header { background: #075e54; color: white; padding: 25px; text-align: center; }
         .header h1 { font-size: 1.3rem; }
         .content { padding: 25px; }
         
+        /* MODO PROPRIETÁRIO - CADASTRO */
         .contact-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 10px; }
         .contact-row input { padding: 12px; border: 2px solid #e1e4e8; border-radius: 8px; font-size: 0.95rem; width: 100%; }
         .btn-del { width: 36px; height: 36px; background: #dc3545; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
         .btn-add { width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; margin: 15px 0; cursor: pointer; font-size: 1rem; }
-        .btn-gen { width: 100%; padding: 16px; background: #25d366; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .btn-gen { width: 100%; padding: 16px; background: #25d366; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
         
-        #qrSection { display: none; text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px dashed #ddd; }
-        #qrSection.show { display: block; }
-        .qr-box { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: inline-block; border: 3px solid #25d366; }
-        .test-btn { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #ffc107; color: #333; text-decoration: none; border-radius: 20px; font-weight: 600; }
-        
-        /* Modo Visitante - Lista Simples */
+        /* MODO VISITANTE - LISTA DE CONTATOS */
         .visitor-mode { display: none; }
         .visitor-mode.show { display: block; animation: fadeIn 0.5s ease; }
         
@@ -37,20 +35,9 @@
         .message-preview::before { content: '💬 Mensagem:'; display: block; font-weight: bold; color: #075e54; margin-bottom: 5px; }
         
         .contact-btn { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 15px; 
-            margin-bottom: 12px; 
-            background: white; 
-            border: 2px solid #25d366; 
-            border-radius: 12px; 
-            text-decoration: none; 
-            color: #333; 
-            transition: all 0.3s;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
+            display: flex; align-items: center; gap: 12px; padding: 15px; margin-bottom: 12px; 
+            background: white; border: 2px solid #25d366; border-radius: 12px; text-decoration: none; 
+            color: #333; transition: all 0.3s; cursor: pointer; width: 100%; text-align: left;
         }
         .contact-btn:hover { background: #f0f9f4; transform: translateX(5px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .contact-btn.sent { background: #d4edda; border-color: #28a745; opacity: 0.7; }
@@ -62,8 +49,197 @@
         .contact-phone { color: #666; font-size: 0.85rem; }
         .wa-arrow { color: #25d366; font-size: 1.5rem; }
         
+        /* PAINEL QR CODE - ESTILO PDF */
+        .qr-panel-mode { display: none; }
+        .qr-panel-mode.show { display: block; animation: fadeIn 0.5s ease; }
+        
+        .panel-preview {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            padding: 35px 20px;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+        
+        .panel-icon-grid {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            margin: 0 auto 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 3px;
+            padding: 4px;
+        }
+        
+        .panel-icon-grid span {
+            background: white;
+            border-radius: 2px;
+        }
+        
+        .panel-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .panel-subtitle {
+            font-size: 13px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        
+        .panel-placa {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 9px;
+            opacity: 0.9;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .panel-qr-section {
+            padding: 30px;
+            text-align: center;
+            background: #fafafa;
+        }
+        
+        .panel-qr-container {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            display: inline-block;
+            border: 4px solid #25D366;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.2);
+        }
+        
+        .panel-qr-label {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .panel-qr-id {
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        
+        .panel-steps {
+            display: flex;
+            justify-content: space-around;
+            padding: 25px 15px;
+            background: #f0f9f4;
+            border-top: 1px solid #e0f0e8;
+        }
+        
+        .panel-step {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .panel-step-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .panel-step-text {
+            font-size: 11px;
+            color: #128C7E;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        .panel-instructions {
+            background: #FFF8E7;
+            padding: 20px 25px;
+            border-top: 1px solid #FFE4B5;
+        }
+        
+        .panel-instr-title {
+            color: #D2691E;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .panel-instr-list {
+            list-style: none;
+        }
+        
+        .panel-instr-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #8B4513;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .panel-number {
+            width: 22px;
+            height: 22px;
+            background: #FF9500;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        /* Botões de ação */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-print { 
+            flex: 1; padding: 12px; background: #17a2b8; color: white; border: none; 
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+        }
+        .btn-back { 
+            flex: 1; padding: 12px; background: #6c757d; color: white; border: none; 
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+        }
+        
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; max-width: 400px; }
+            .header, .action-buttons, #ownerMode { display: none !important; }
+            .qr-panel-mode { display: block !important; }
+            .panel-preview { box-shadow: none; border: 1px solid #ddd; }
+        }
     </style>
 </head>
 <body>
@@ -76,7 +252,7 @@
     
     <div class="content">
         
-        <!-- MODO PROPRIETÁRIO -->
+        <!-- MODO PROPRIETÁRIO - CADASTRO -->
         <div id="ownerMode">
             <div style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">
                 Configure os contatos para transmissão:
@@ -92,15 +268,66 @@
             </div>
             
             <button class="btn-gen" onclick="generateQR()">📢 Gerar QR Code</button>
+        </div>
+
+        <!-- MODO PAINEL QR CODE (ESTILO PDF) -->
+        <div id="qrPanelMode" class="qr-panel-mode">
+            <div class="panel-preview" id="panelToPrint">
+                <div class="panel-header">
+                    <div class="panel-placa" id="panelPlaca">PLACA-AUTO</div>
+                    <div class="panel-icon-grid">
+                        <span></span><span></span>
+                        <span></span><span></span>
+                    </div>
+                    <div class="panel-title">INTERFONE VIRTUAL</div>
+                    <div class="panel-subtitle">Toque para chamar via WhatsApp</div>
+                </div>
+                
+                <div class="panel-qr-section">
+                    <div class="panel-qr-container">
+                        <div id="qrcodePanel" style="width: 200px; height: 200px;"></div>
+                    </div>
+                    <div class="panel-qr-label">Interfone Virtual</div>
+                    <div class="panel-qr-id" id="qrIdLabel">PLACA-AUTO</div>
+                </div>
+                
+                <div class="panel-steps">
+                    <div class="panel-step">
+                        <div class="panel-step-icon">📷</div>
+                        <div class="panel-step-text">Aponte a<br>câmera</div>
+                    </div>
+                    <div class="panel-step">
+                        <div class="panel-step-icon">👆</div>
+                        <div class="panel-step-text">Toque no<br>link</div>
+                    </div>
+                    <div class="panel-step">
+                        <div class="panel-step-icon">💬</div>
+                        <div class="panel-step-text">Fale<br>direto</div>
+                    </div>
+                </div>
+                
+                <div class="panel-instructions">
+                    <div class="panel-instr-title">📋 COMO USAR:</div>
+                    <ul class="panel-instr-list">
+                        <li><span class="panel-number">1</span><span>Abra a câmera do celular</span></li>
+                        <li><span class="panel-number">2</span><span>Aponte para o QR Code</span></li>
+                        <li><span class="panel-number">3</span><span>Toque no link que aparecer</span></li>
+                        <li><span class="panel-number">4</span><span>Escolha o contato e envie!</span></li>
+                    </ul>
+                </div>
+            </div>
             
-            <div id="qrSection">
-                <div class="qr-box"><div id="qrcode"></div></div>
-                <p style="margin-top: 15px; color: #075e54; font-weight: 600;">Aponte a câmera do celular</p>
-                <a href="#" id="testLink" class="test-btn" target="_blank">👆 Testar Agora</a>
+            <div class="action-buttons">
+                <button class="btn-print" onclick="printPanel()">🖨️ Imprimir / Salvar PDF</button>
+                <button class="btn-back" onclick="backToEdit()">✏️ Editar</button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 10px;">
+                <a href="#" id="testLinkPanel" class="test-btn" target="_blank" style="display: inline-block; padding: 10px 20px; background: #ffc107; color: #333; text-decoration: none; border-radius: 20px; font-weight: 600;">👆 Testar Agora</a>
             </div>
         </div>
 
-        <!-- MODO VISITANTE -->
+        <!-- MODO VISITANTE - TRANSMISSÃO -->
         <div id="visitorMode" class="visitor-mode">
             <div class="broadcast-card">
                 <div class="broadcast-icon">📡</div>
@@ -115,10 +342,6 @@
             <div style="text-align: center; margin-top: 20px; color: #666; font-size: 0.85rem;">
                 💡 Você pode enviar para um ou todos os contatos acima
             </div>
-            
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="#" onclick="window.location.href = window.location.pathname" style="color: #128C7E; text-decoration: none; font-size: 0.9rem;">🔄 Criar meu próprio QR Code</a>
-            </div>
         </div>
 
     </div>
@@ -127,19 +350,18 @@
 <script>
 // Detectar modo ao carregar
 window.onload = function() {
-    // Verificar se tem hash na URL (modo visitante)
     if (window.location.hash && window.location.hash.length > 1) {
         const data = decodeURIComponent(window.location.hash.substring(1));
         console.log('Modo visitante detectado:', data);
         loadVisitorMode(data);
     } else {
-        // Modo proprietário - adicionar contatos iniciais
         addContact();
         addContact();
     }
 };
 
 let contactCount = 0;
+let currentQRUrl = '';
 
 function addContact() {
     contactCount++;
@@ -182,36 +404,52 @@ function generateQR() {
     const msg = document.getElementById('msgText').value.trim() || 'Olá!';
     const data = contacts.join(',') + '@' + encodeURIComponent(msg);
     
-    // Criar URL limpa
     const baseUrl = window.location.href.split('#')[0];
-    const finalUrl = baseUrl + '#' + encodeURIComponent(data);
+    currentQRUrl = baseUrl + '#' + encodeURIComponent(data);
     
-    console.log('URL gerada:', finalUrl);
+    // Gerar ID da placa baseado na data/hora
+    const placaId = 'PLACA-' + Date.now().toString(36).toUpperCase().slice(-8) + '-WDQ';
     
-    // Gerar QR
-    document.getElementById('qrcode').innerHTML = '';
-    new QRCode(document.getElementById('qrcode'), {
-        text: finalUrl,
+    // Atualizar labels
+    document.getElementById('panelPlaca').textContent = placaId;
+    document.getElementById('qrIdLabel').textContent = placaId;
+    
+    // Gerar QR Code no painel
+    document.getElementById('qrcodePanel').innerHTML = '';
+    new QRCode(document.getElementById('qrcodePanel'), {
+        text: currentQRUrl,
         width: 200,
         height: 200,
-        colorDark: "#075e54",
+        colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.M
     });
     
-    document.getElementById('qrSection').classList.add('show');
-    document.getElementById('testLink').href = finalUrl;
+    document.getElementById('testLinkPanel').href = currentQRUrl;
+    
+    // Mostrar painel e esconder cadastro
+    document.getElementById('ownerMode').classList.add('hidden');
+    document.getElementById('qrPanelMode').classList.add('show');
+}
+
+function printPanel() {
+    window.print();
+}
+
+function backToEdit() {
+    document.getElementById('qrPanelMode').classList.remove('show');
+    document.getElementById('ownerMode').classList.remove('hidden');
 }
 
 function loadVisitorMode(data) {
     try {
         console.log('Carregando dados:', data);
         
-        // Parse: nome|fone,nome|fone@msg
         const [contactsPart, msgEncoded] = data.split('@');
         const msg = msgEncoded ? decodeURIComponent(msgEncoded) : 'Olá!';
         
         document.getElementById('ownerMode').classList.add('hidden');
+        document.getElementById('qrPanelMode').classList.add('hidden');
         document.getElementById('visitorMode').classList.add('show');
         document.getElementById('subtitle').textContent = 'Modo Transmissão';
         document.getElementById('displayMsg').textContent = msg;
@@ -242,11 +480,8 @@ function loadVisitorMode(data) {
                 <div class="wa-arrow">💬</div>
             `;
             
-            // Marcar como enviado quando clicar
             btn.onclick = function() {
-                setTimeout(() => {
-                    btn.classList.add('sent');
-                }, 1000);
+                setTimeout(() => { btn.classList.add('sent'); }, 1000);
             };
             
             container.appendChild(btn);
@@ -254,7 +489,7 @@ function loadVisitorMode(data) {
         
     } catch (e) {
         console.error('Erro:', e);
-        alert('Erro ao carregar contatos. O QR Code pode estar incompleto.');
+        alert('Erro ao carregar contatos.');
         window.location.href = window.location.pathname;
     }
 }
