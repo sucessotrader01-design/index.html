@@ -49,7 +49,7 @@
         .contact-phone { color: #666; font-size: 0.85rem; }
         .wa-arrow { color: #25d366; font-size: 1.5rem; }
         
-        /* PAINEL QR CODE - ESTILO PDF */
+        /* PAINEL QR CODE - ESTILO PDF OTIMIZADO */
         .qr-panel-mode { display: none; }
         .qr-panel-mode.show { display: block; animation: fadeIn 0.5s ease; }
         
@@ -122,7 +122,7 @@
         
         .panel-qr-container {
             background: white;
-            padding: 15px;
+            padding: 20px;
             border-radius: 16px;
             display: inline-block;
             border: 4px solid #25D366;
@@ -230,13 +230,29 @@
             border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
         }
         
+        /* Dicas de leitura */
+        .reading-tips {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: #1565C0;
+        }
+        
+        .reading-tips strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         @media print {
             body { background: white; padding: 0; }
             .container { box-shadow: none; max-width: 400px; }
-            .header, .action-buttons, #ownerMode { display: none !important; }
+            .header, .action-buttons, .reading-tips, #ownerMode { display: none !important; }
             .qr-panel-mode { display: block !important; }
             .panel-preview { box-shadow: none; border: 1px solid #ddd; }
         }
@@ -270,7 +286,7 @@
             <button class="btn-gen" onclick="generateQR()">📢 Gerar QR Code</button>
         </div>
 
-        <!-- MODO PAINEL QR CODE (ESTILO PDF) -->
+        <!-- MODO PAINEL QR CODE (ESTILO PDF OTIMIZADO) -->
         <div id="qrPanelMode" class="qr-panel-mode">
             <div class="panel-preview" id="panelToPrint">
                 <div class="panel-header">
@@ -285,7 +301,8 @@
                 
                 <div class="panel-qr-section">
                     <div class="panel-qr-container">
-                        <div id="qrcodePanel" style="width: 200px; height: 200px;"></div>
+                        <!-- QR Code aumentado para 280px -->
+                        <div id="qrcodePanel" style="width: 280px; height: 280px;"></div>
                     </div>
                     <div class="panel-qr-label">Interfone Virtual</div>
                     <div class="panel-qr-id" id="qrIdLabel">PLACA-AUTO</div>
@@ -315,6 +332,12 @@
                         <li><span class="panel-number">4</span><span>Escolha o contato e envie!</span></li>
                     </ul>
                 </div>
+            </div>
+            
+            <div class="reading-tips">
+                <strong>💡 Dica para leitura:</strong>
+                Mantenha o celular a <strong>15-20cm</strong> de distância. Nem muito perto (fica embaçado) nem muito longe (fica pequeno). 
+                Se a câmera der zoom, afaste um pouco o celular e aguarde o foco automático.
             </div>
             
             <div class="action-buttons">
@@ -414,15 +437,15 @@ function generateQR() {
     document.getElementById('panelPlaca').textContent = placaId;
     document.getElementById('qrIdLabel').textContent = placaId;
     
-    // Gerar QR Code no painel
+    // Gerar QR Code no painel - TAMANHO AUMENTADO E CORREÇÃO MÁXIMA
     document.getElementById('qrcodePanel').innerHTML = '';
     new QRCode(document.getElementById('qrcodePanel'), {
         text: currentQRUrl,
-        width: 200,
-        height: 200,
+        width: 280,  // AUMENTADO: era 200, agora 280px
+        height: 280, // AUMENTADO: era 200, agora 280px
         colorDark: "#000000",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
+        correctLevel: QRCode.CorrectLevel.H // MÁXIMA CORREÇÃO DE ERRO (30%)
     });
     
     document.getElementById('testLinkPanel').href = currentQRUrl;
