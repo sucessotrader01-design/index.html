@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfone Virtual - Linha de Transmissão</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: linear-gradient(135deg, #25d366 0%, #128C7E 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 25px 80px rgba(0,0,0,0.3); max-width: 450px; width: 100%; overflow: hidden; }
+        .header { background: #075e54; color: white; padding: 25px; text-align: center; }
+        .header h1 { font-size: 1.3rem; }
+        .content { padding: 25px; }
+        
+        .contact-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 10px; }
+        .contact-row input { padding: 12px; border: 2px solid #e1e4e8; border-radius: 8px; font-size: 0.95rem; width: 100%; }
+        .btn-del { width: 36px; height: 36px; background: #dc3545; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+        .btn-add { width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 8px; margin: 15px 0; cursor: pointer; font-size: 1rem; }
+        .btn-gen { width: 100%; padding: 16px; background: #25d366; color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        
+        #qrSection { display: none; text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px dashed #ddd; }
+        #qrSection.show { display: block; }
+        .qr-box { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: inline-block; border: 3px solid #25d366; }
+        .test-btn { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #ffc107; color: #333; text-decoration: none; border-radius: 20px; font-weight: 600; }
+        
+        /* Modo Visitante - Lista Simples */
+        .visitor-mode { display: none; }
+        .visitor-mode.show { display: block; animation: fadeIn 0.5s ease; }
+        
+        .broadcast-card { background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .broadcast-icon { font-size: 3rem; margin-bottom: 10px; }
+        .broadcast-card h2 { color: #075e54; margin-bottom: 5px; }
+        .broadcast-card p { color: #666; font-size: 0.9rem; }
+        
+        .message-preview { background: #dcf8c6; border-radius: 12px; padding: 15px; margin-bottom: 25px; position: relative; text-align: left; }
+        .message-preview::before { content: '💬 Mensagem:'; display: block; font-weight: bold; color: #075e54; margin-bottom: 5px; }
+        
+        .contact-btn { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            background: white; 
+            border: 2px solid #25d366; 
+            border-radius: 12px; 
+            text-decoration: none; 
+            color: #333; 
+            transition: all 0.3s;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+        .contact-btn:hover { background: #f0f9f4; transform: translateX(5px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .contact-btn.sent { background: #d4edda; border-color: #28a745; opacity: 0.7; }
+        .contact-btn.sent::after { content: '✓'; margin-left: auto; color: #28a745; font-weight: bold; font-size: 1.2rem; }
+        
+        .avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem; flex-shrink: 0; }
+        .contact-info { flex: 1; }
+        .contact-name { font-weight: 700; color: #075e54; font-size: 1.1rem; }
+        .contact-phone { color: #666; font-size: 0.85rem; }
+        .wa-arrow { color: #25d366; font-size: 1.5rem; }
+        
+        .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📱 Interfone Virtual</h1>
+        <p id="subtitle">Sistema de Transmissão</p>
+    </div>
+    
+    <div class="content">
+        
+        <!-- MODO PROPRIETÁRIO -->
+        <div id="ownerMode">
+            <div style="margin-bottom: 15px; color: #555; font-size: 0.9rem;">
+                Configure os contatos para transmissão:
+            </div>
+            
+            <div id="contactsList"></div>
+            
+            <button class="btn-add" onclick="addContact()">➕ Adicionar Contato</button>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 5px;">Mensagem:</label>
+                <input type="text" id="msgText" value="Olá! Estou na porta/interfone.">
+            </div>
+            
+            <button class="btn-gen" onclick="generateQR()">📢 Gerar QR Code</button>
+            
+            <div id="qrSection">
+                <div class="qr-box"><div id="qrcode"></div></div>
+                <p style="margin-top: 15px; color: #075e54; font-weight: 600;">Aponte a câmera do celular</p>
+                <a href="#" id="testLink" class="test-btn" target="_blank">👆 Testar Agora</a>
+            </div>
+        </div>
+
+        <!-- MODO VISITANTE -->
+        <div id="visitorMode" class="visitor-mode">
+            <div class="broadcast-card">
+                <div class="broadcast-icon">📡</div>
+                <h2>Linha de Transmissão</h2>
+                <p>Toque nos contatos abaixo para enviar</p>
+            </div>
+            
+            <div class="message-preview" id="displayMsg"></div>
+            
+            <div id="buttonsContainer"></div>
+            
+            <div style="text-align: center; margin-top: 20px; color: #666; font-size: 0.85rem;">
+                💡 Você pode enviar para um ou todos os contatos acima
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="#" onclick="window.location.href = window.location.pathname" style="color: #128C7E; text-decoration: none; font-size: 0.9rem;">🔄 Criar meu próprio QR Code</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// Detectar modo ao carregar
+window.onload = function() {
+    // Verificar se tem hash na URL (modo visitante)
+    if (window.location.hash && window.location.hash.length > 1) {
+        const data = decodeURIComponent(window.location.hash.substring(1));
+        console.log('Modo visitante detectado:', data);
+        loadVisitorMode(data);
+    } else {
+        // Modo proprietário - adicionar contatos iniciais
+        addContact();
+        addContact();
+    }
+};
+
+let contactCount = 0;
+
+function addContact() {
+    contactCount++;
+    const div = document.createElement('div');
+    div.className = 'contact-row';
+    div.innerHTML = `
+        <input type="text" placeholder="Nome" class="c-name" maxlength="20">
+        <input type="tel" placeholder="WhatsApp" class="c-phone" maxlength="13">
+        <button class="btn-del" onclick="this.parentElement.remove()">×</button>
+    `;
+    document.getElementById('contactsList').appendChild(div);
+    
+    div.querySelector('.c-phone').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+}
+
+function generateQR() {
+    const rows = document.querySelectorAll('.contact-row');
+    const contacts = [];
+    
+    rows.forEach(row => {
+        const name = row.querySelector('.c-name').value.trim();
+        let phone = row.querySelector('.c-phone').value.trim();
+        
+        if (name && phone) {
+            phone = phone.replace(/\D/g, '');
+            if (phone.length >= 10) {
+                if (!phone.startsWith('55')) phone = '55' + phone;
+                contacts.push(encodeURIComponent(name) + '|' + phone);
+            }
+        }
+    });
+    
+    if (contacts.length === 0) {
+        alert('Adicione pelo menos um contato válido');
+        return;
+    }
+    
+    const msg = document.getElementById('msgText').value.trim() || 'Olá!';
+    const data = contacts.join(',') + '@' + encodeURIComponent(msg);
+    
+    // Criar URL limpa
+    const baseUrl = window.location.href.split('#')[0];
+    const finalUrl = baseUrl + '#' + encodeURIComponent(data);
+    
+    console.log('URL gerada:', finalUrl);
+    
+    // Gerar QR
+    document.getElementById('qrcode').innerHTML = '';
+    new QRCode(document.getElementById('qrcode'), {
+        text: finalUrl,
+        width: 200,
+        height: 200,
+        colorDark: "#075e54",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+    });
+    
+    document.getElementById('qrSection').classList.add('show');
+    document.getElementById('testLink').href = finalUrl;
+}
+
+function loadVisitorMode(data) {
+    try {
+        console.log('Carregando dados:', data);
+        
+        // Parse: nome|fone,nome|fone@msg
+        const [contactsPart, msgEncoded] = data.split('@');
+        const msg = msgEncoded ? decodeURIComponent(msgEncoded) : 'Olá!';
+        
+        document.getElementById('ownerMode').classList.add('hidden');
+        document.getElementById('visitorMode').classList.add('show');
+        document.getElementById('subtitle').textContent = 'Modo Transmissão';
+        document.getElementById('displayMsg').textContent = msg;
+        
+        const container = document.getElementById('buttonsContainer');
+        container.innerHTML = '';
+        
+        const contacts = contactsPart.split(',');
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+        
+        contacts.forEach((contact, index) => {
+            const [nameEnc, phone] = contact.split('|');
+            if (!nameEnc || !phone) return;
+            
+            const name = decodeURIComponent(nameEnc);
+            const color = colors[index % colors.length];
+            
+            const btn = document.createElement('a');
+            btn.className = 'contact-btn';
+            btn.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            btn.target = '_blank';
+            btn.innerHTML = `
+                <div class="avatar" style="background: ${color};">${name.charAt(0).toUpperCase()}</div>
+                <div class="contact-info">
+                    <div class="contact-name">${name}</div>
+                    <div class="contact-phone">📱 ${phone}</div>
+                </div>
+                <div class="wa-arrow">💬</div>
+            `;
+            
+            // Marcar como enviado quando clicar
+            btn.onclick = function() {
+                setTimeout(() => {
+                    btn.classList.add('sent');
+                }, 1000);
+            };
+            
+            container.appendChild(btn);
+        });
+        
+    } catch (e) {
+        console.error('Erro:', e);
+        alert('Erro ao carregar contatos. O QR Code pode estar incompleto.');
+        window.location.href = window.location.pathname;
+    }
+}
+</script>
+
+</body>
+</html>
